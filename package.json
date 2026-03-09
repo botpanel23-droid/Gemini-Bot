@@ -1,0 +1,43 @@
+const body = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
+const command = body.toLowerCase().split(" ")[0];
+const args = body.split(" ").slice(1);
+
+switch (command) {
+    // --- BOT SETTINGS ---
+    case 'autotyping':
+        if (args[0] === 'on') {
+            autoTyping = true;
+            await sock.sendMessage(from, { text: '✅ Auto Typing Turned ON' });
+        } else if (args[0] === 'off') {
+            autoTyping = false;
+            await sock.sendMessage(from, { text: '❌ Auto Typing Turned OFF' });
+        }
+        break;
+
+    case 'autorecording':
+        if (args[0] === 'on') {
+            autoRecording = true;
+            autoTyping = false; // එකවර දෙකක් බැරි නිසා
+            await sock.sendMessage(from, { text: '✅ Auto Recording Turned ON' });
+        } else if (args[0] === 'off') {
+            autoRecording = false;
+            await sock.sendMessage(from, { text: '❌ Auto Recording Turned OFF' });
+        }
+        break;
+
+    // --- SONG DOWNLOADER ---
+    case '.song':
+        const songName = args.join(" ");
+        if (!songName) return sock.sendMessage(from, { text: 'කරුණාකර සින්දුවේ නම ලබාදෙන්න.' });
+        await sock.sendMessage(from, { text: `🎧 Searching for: ${songName}...` });
+        // මෙතනට ytdl-core වගේ library එකක් පාවිච්චි කරලා download logic එක දාන්න පුළුවන්.
+        break;
+
+    // --- DEFAULT AUTO REPLY ---
+    default:
+        if (!msg.key.fromMe && !msg.key.remoteJid.includes('@g.us')) {
+            const replyMsg = `*👋 Hello!*\n_I'm currently offline_\n⏳ Will get back to you soon\n~Thanks for your patience~\n\`Message received ✅\``;
+            await sock.sendMessage(from, { text: replyMsg }, { quoted: msg });
+        }
+        break;
+}
